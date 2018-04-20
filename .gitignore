@@ -36,3 +36,6 @@ data/private/*
 
 # egg-info
 aceso.egg-info/*
+
+#
+build/*
