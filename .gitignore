@@ -33,3 +33,6 @@ data/private/*
 
 # cache
 .cache/*
+
+# egg-info
+aceso.egg-info/*
