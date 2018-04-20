@@ -1,4 +1,4 @@
-u"""
+"""
 Methods to calculate gravity-based measures of potential spatial accessibility.
 
 These measures assign accessibility scores to demand locations based on their proximity to supply
@@ -6,25 +6,26 @@ locations. The main method used here is a gravitational model using non-standard
 
 References:
     Luo, W. and Qi, Y. (2009) An enhanced two-step floating catchment area (E2SFCA) method for
-    measuring spatial accessibility to primary care physicians. Health and Place 15, 1100–1107.
+    measuring spatial accessibility to primary care physicians. Health and Place 15, 11001107.
 
     Luo, W. and Wang, F. (2003) Measures of spatial accessibility to health care in a GIS
-    environment: synthesis and a case study in the Chicago region.
-    Environment and Planning B: Planning and Design 30, 865–884.
+    environment: synthesis and a case study in the Chicago region. Environment and Planning B:
+    Planning and Design 30, 865884.
 
     Wang, F. (2012) Measurement, optimization, and impact of health care accessibility:
-    a methodological review. Annals of the Association of American Geographers 102, 1104–1112.
+    a methodological review. Annals of the Association of American Geographers 102, 11041112.
 """
 import inspect
 import functools
 import warnings
+import sys
 
 import numpy as np
 
 from aceso import decay
 
 
-class GravityModel():
+class GravityModel(object):
     """Represents an instance of a gravitational model of spatial interaction.
 
     Different choices of decay function lead to the following models:
@@ -64,17 +65,29 @@ class GravityModel():
             decay_function = decay.get_decay_function(decay_function)
 
         passed_params = dict(**params)
-        missing_params = {
-            k for k in list(inspect.signature(decay_function).parameters)[1:]
-            if (k not in passed_params)
-        }
-        valid_params = {
-            k: v for k, v in passed_params.items()
-            if k in inspect.signature(decay_function).parameters
-        }
+        if sys.version_info[0] >= 3:
+            missing_params = {
+                k for k in list(inspect.signature(decay_function).parameters)[1:]
+                if (k not in passed_params)
+            }
+            valid_params = {
+                k: v for k, v in passed_params.items()
+                if k in inspect.signature(decay_function).parameters
+            }
+        elif sys.version_info[0] == 2:
+            missing_params = {
+                k for k in inspect.getargspec(decay_function).args[1:]
+                if (k not in passed_params)
+            }
+            valid_params = {
+                k: v for k, v in passed_params.items()
+                if k in inspect.getargspec(decay_function).args
+            }
+
         # If any required parameters are missing, raise an error.
         if missing_params:
-            raise KeyError('Parameter(s) "{}" must be specified!'.format(', '.join(missing_params)))
+            raise ValueError(
+                'Parameter(s) "{}" must be specified!'.format(', '.join(missing_params)))
 
         # Warn users if a parameter was passed that the specified function does not accept.
         for param in passed_params:
@@ -119,7 +132,7 @@ class GravityModel():
         if supply_array is None:
             supply_array = np.ones(distance_matrix.shape[1])
 
-        demand_potentials = self._calculate_demand_potentials_by_location(
+        demand_potentials = self._calculate_demand_potentials(
             distance_matrix=distance_matrix,
             demand_array=demand_array,
         )
@@ -133,7 +146,7 @@ class GravityModel():
 
         return access_by_point
 
-    def _calculate_demand_potentials_by_location(self, distance_matrix, demand_array):
+    def _calculate_demand_potentials(self, distance_matrix, demand_array):
         """Calculate the demand potential at each input location.
 
         Returns
