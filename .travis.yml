@@ -8,4 +8,6 @@ install:
   - pip install -r requirements-dev.txt
 script:
   - make lint
-  - make coverage-ci
+  - make coverage
+after_success:
+  - coveralls
