@@ -14,7 +14,7 @@ def _get_install_requires():
 
 setuptools.setup(
     name='aceso',
-    version='0.0.1',
+    version='0.0.2',
     description='''
         Lightweight package to calculate 2SFCA and other measures of spatial accessibility
         '''.strip(),

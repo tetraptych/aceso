@@ -39,3 +39,6 @@ aceso.egg-info/*
 
 #
 build/*
+
+#
+.coverage
