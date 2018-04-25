@@ -15,4 +15,4 @@ The only dependency is `numpy`.
 
 ## Gallery
 
-![Potential spatial access to abortion clinics in Texas (2017)](https://farm1.staticflickr.com/902/39848822400_197406d944_b_d.jpg "Gravity model using raised cosine decay with 3 hour driving radius")
+![Potential spatial access to abortion clinics in Texas (2017)](https://farm1.staticflickr.com/902/39848822400_197406d944_z_d.jpg "Gravity model using raised cosine decay with 3 hour driving radius")
