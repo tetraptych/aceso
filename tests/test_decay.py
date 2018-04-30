@@ -14,6 +14,11 @@ class TestDecayFunctions():
         """Initialize an array of distances for use in the test cases."""
         self.distance_array = np.asarray([[0.0, 1.0, 100.0, np.nan, float('inf')]])
 
+    def test_parabolic_decay(self):
+        output = aceso.decay.parabolic_decay(self.distance_array, scale=2.0)
+        expected = np.array([[1.0, 0.75, 0., np.nan, 0.0]])
+        np.testing.assert_equal(output, expected)
+
     def test_gaussian_decay(self):
         output = aceso.decay.gaussian_decay(self.distance_array, sigma=2.0)
         expected = np.array([[1.0, 0.88249690258459546, 0.0, np.nan, 0.0]])

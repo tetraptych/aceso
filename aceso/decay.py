@@ -5,6 +5,25 @@ import math
 import numpy as np
 
 
+def parabolic_decay(distance_array, scale):
+    """
+    Transform a measurement array using the Epanechnikov (parabolic) kernel.
+
+    Some sample values (in multiples of scale):
+        measurement   |   decay value
+        -----------------------------
+            0.0       |         1.0 (full value)
+            0.25      |         0.9375
+            0.5       |         0.75
+            0.75      |         0.4375
+            1.0       |         0.0
+    """
+    return np.maximum(
+        (scale**2 - distance_array**2) / scale**2,
+        np.zeros(shape=distance_array.shape)
+    )
+
+
 def gaussian_decay(distance_array, sigma):
     """
     Transform a measurement array using a normal (Gaussian) distribution.
@@ -59,4 +78,6 @@ NAME_TO_FUNCTION_MAP = {
     'uniform': uniform_decay,
     'raised_cosine': raised_cosine_decay,
     'gaussian': gaussian_decay,
+    'parabolic': parabolic_decay,
+    'epanechnikov': parabolic_decay
 }
