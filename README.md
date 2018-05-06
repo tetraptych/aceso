@@ -8,7 +8,7 @@ This package shares a name with [the Greek goddess of the healing process](https
 `aceso` is available on [PyPI](https://pypi.org/project/aceso/) and can be installed via the following command:
 
 ```
-pip install unrasterize
+pip install aceso
 ```
 
 The only dependency is `numpy`.
