@@ -14,6 +14,10 @@ References:
 
     Wang, F. (2012) Measurement, optimization, and impact of health care accessibility:
     a methodological review. Annals of the Association of American Geographers 102, 11041112.
+
+    Wan, Neng & Zou, Bin & Sternberg, Troy. (2012). A 3-step floating catchment area method for
+    analyzing spatial access to health services. International Journal of Geographical Information
+    Science. 26. 1073-1089. 10.1080/13658816.2011.624987.
 """
 import inspect
 import functools
@@ -29,13 +33,17 @@ class GravityModel(object):
     """Represents an instance of a gravitational model of spatial interaction.
 
     Different choices of decay function lead to the following models:
-        - Standard gravity model
-        - Two-Step Floating Catchment (2SFCA) model
+        - Standard gravity models
+        - Two-Step Floating Catchment Area (2SFCA) models
         - Enhanced 2SFCA (E2SFCA) models
+        - Three-Step FCA (3SFCA) models
+        - Modified 2SFCA (M2SFCA) models
         - Kernel Density 2SFCA (KD2SFCA) models
     """
 
-    def __init__(self, decay_function, decay_params={}, huff_normalization=False):
+    def __init__(
+        self, decay_function, decay_params={}, huff_normalization=False, suboptimality_exponent=1.0
+    ):
         """"Initialize a gravitational model of spatial accessibility.
 
         Parameters
@@ -45,12 +53,26 @@ class GravityModel(object):
             Some available names are 'uniform', 'raised_cosine', and 'gaussian_decay'.
 
             If callable, a vectorized numpy function returning demand dropoffs by distance.
-        decay_params :
+        decay_params : mapping
             Parameter: value mapping for each argument of the specified decay function.
             These parameters are bound to the decay function to create a one-argument callable.
+        huff_normalization: bool
+            Indicates whether to normalize demand through the use of Huff-like interaction
+            probabilities.
+
+            Used in 3SFCA to curtail demand over-estimation.
+        suboptimality_exponent: float
+            Used in M2SFCA to indicate the extent to account for network suboptimality in access.
+            This parameter allows for the differentiation between two scenarios:
+                1. Three demand locations each at a distance of 1.0 mile from the sole provider;
+                2. Three demand locations each at a distance of 2.0 miles from the sole provider.
+
+            Values greater than 1.0 for this parameter will result in accessibility scores
+            whose weighted average is less than the overall supply.
         """
         self.decay_function = self._bind_decay_function_parameters(decay_function, decay_params)
         self.huff_normalization = huff_normalization
+        self.suboptimality_exponent = suboptimality_exponent
 
     @staticmethod
     def _bind_decay_function_parameters(decay_function, decay_params):
@@ -138,7 +160,11 @@ class GravityModel(object):
         )
         inverse_demands = np.reciprocal(demand_potentials)
         inverse_demands[np.isinf(inverse_demands)] = 0.0
-        access_ratio_matrix = self.decay_function(distance_matrix) * supply_array * inverse_demands
+        access_ratio_matrix = supply_array * inverse_demands
+        access_ratio_matrix = access_ratio_matrix * np.power(
+            self.decay_function(distance_matrix),
+            self.suboptimality_exponent
+        )
         if self.huff_normalization:
             access_ratio_matrix *= self._calculate_interaction_probabilities(distance_matrix)
         return np.nansum(access_ratio_matrix, axis=1)
@@ -221,7 +247,7 @@ class ThreeStepFCA(GravityModel):
             Some available names are 'uniform', 'raised_cosine', and 'gaussian_decay'.
 
             If callable, a vectorized numpy function returning demand dropoffs by distance.
-        decay_params :
+        decay_params : mapping
             Parameter: value mapping for each argument of the specified decay function.
             These parameters are bound to the decay function to create a one-argument callable.
         """
