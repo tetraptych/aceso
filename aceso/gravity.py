@@ -35,7 +35,7 @@ class GravityModel(object):
         - Kernel Density 2SFCA (KD2SFCA) models
     """
 
-    def __init__(self, decay_function, **params):
+    def __init__(self, decay_function, decay_params={}):
         """"Initialize a gravitational model of spatial accessibility.
 
         Parameters
@@ -45,14 +45,14 @@ class GravityModel(object):
             Some available names are 'uniform', 'raised_cosine', and 'gaussian_decay'.
 
             If callable, a vectorized numpy function returning demand dropoffs by distance.
-        kwargs :
-            Parameter=value mapping for each argument of the specified decay function.
+        decay_params :
+            Parameter: value mapping for each argument of the specified decay function.
             These parameters are bound to the decay function to create a one-argument callable.
         """
-        self.decay_function = self._bind_decay_function_parameters(decay_function, **params)
+        self.decay_function = self._bind_decay_function_parameters(decay_function, decay_params)
 
     @staticmethod
-    def _bind_decay_function_parameters(decay_function, **params):
+    def _bind_decay_function_parameters(decay_function, decay_params):
         """Bind the given parameters for the decay function.
 
         Returns
@@ -64,23 +64,22 @@ class GravityModel(object):
         if isinstance(decay_function, str):
             decay_function = decay.get_decay_function(decay_function)
 
-        passed_params = dict(**params)
         if sys.version_info[0] >= 3:
             missing_params = {
                 k for k in list(inspect.signature(decay_function).parameters)[1:]
-                if (k not in passed_params)
+                if (k not in decay_params)
             }
             valid_params = {
-                k: v for k, v in passed_params.items()
+                k: v for k, v in decay_params.items()
                 if k in inspect.signature(decay_function).parameters
             }
         elif sys.version_info[0] == 2:
             missing_params = {
                 k for k in inspect.getargspec(decay_function).args[1:]
-                if (k not in passed_params)
+                if (k not in decay_params)
             }
             valid_params = {
-                k: v for k, v in passed_params.items()
+                k: v for k, v in decay_params.items()
                 if k in inspect.getargspec(decay_function).args
             }
 
@@ -90,7 +89,7 @@ class GravityModel(object):
                 'Parameter(s) "{}" must be specified!'.format(', '.join(missing_params)))
 
         # Warn users if a parameter was passed that the specified function does not accept.
-        for param in passed_params:
+        for param in decay_params:
             if param not in valid_params:
                 warnings.warn('Invalid parameter {param} was passed to {func}!'.format(
                     param=param,
@@ -176,4 +175,4 @@ class TwoStepFCA(GravityModel):
             Pairs of points further than this distance apart are deemed mutually inaccessible.
             Points within this radius contribute the full demand amount (with no decay).
         """
-        super(TwoStepFCA, self).__init__(decay_function='uniform', scale=radius)
+        super(TwoStepFCA, self).__init__(decay_function='uniform', decay_params={'scale': radius})

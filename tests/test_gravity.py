@@ -22,11 +22,17 @@ class TestGravityModel():
 
     def test_init_str(self):
         """Test initialization when passed a string as the decay function."""
-        aceso.gravity.GravityModel(decay_function='gaussian', sigma=1.0)
+        aceso.gravity.GravityModel(
+            decay_function='gaussian',
+            decay_params={'sigma': 1.0}
+        )
 
     def test_init_callable(self):
         """Test initialization when passed a callable as the decay function."""
-        aceso.gravity.GravityModel(decay_function=aceso.decay.gaussian_decay, sigma=1.0)
+        aceso.gravity.GravityModel(
+            decay_function=aceso.decay.gaussian_decay,
+            decay_params={'sigma': 1.0}
+        )
 
     def test_init_missing_parameters(self):
         """Test initialization raises an ValueError when a required parameter is missing."""
@@ -37,9 +43,10 @@ class TestGravityModel():
         """Test initialization raises a warning when extra arguments are passed."""
         with warnings.catch_warnings(record=True) as w:
             aceso.gravity.GravityModel(
-                decay_function=aceso.decay.gaussian_decay, sigma=1.0, extra_argument=1.0
+                decay_function=aceso.decay.gaussian_decay,
+                decay_params={'sigma': 1.0, 'extra_param': 1.0}
             )
-            assert 'extra_argument' in str(w[-1].message)
+            assert 'extra_param' in str(w[-1].message)
 
     def test_calculate_demand_potentials(self):
         """Test that _calculate_demand_potentials returns the expected value."""
