@@ -35,7 +35,7 @@ class GravityModel(object):
         - Kernel Density 2SFCA (KD2SFCA) models
     """
 
-    def __init__(self, decay_function, decay_params={}):
+    def __init__(self, decay_function, decay_params={}, huff_normalization=False):
         """"Initialize a gravitational model of spatial accessibility.
 
         Parameters
@@ -50,6 +50,7 @@ class GravityModel(object):
             These parameters are bound to the decay function to create a one-argument callable.
         """
         self.decay_function = self._bind_decay_function_parameters(decay_function, decay_params)
+        self.huff_normalization = huff_normalization
 
     @staticmethod
     def _bind_decay_function_parameters(decay_function, decay_params):
@@ -135,15 +136,12 @@ class GravityModel(object):
             distance_matrix=distance_matrix,
             demand_array=demand_array,
         )
-
-        access_by_point = np.zeros(distance_matrix.shape[0])
-        for point_index, _ in enumerate(access_by_point):
-            matrix = self.decay_function(distance_matrix[point_index, :])
-            matrix *= 1.0 / demand_potentials
-            matrix[matrix == np.inf] = 0.0
-            access_by_point[point_index] = np.nansum(matrix)
-
-        return access_by_point
+        inverse_demands = np.reciprocal(demand_potentials)
+        inverse_demands[np.isinf(inverse_demands)] = 0.0
+        access_ratio_matrix = self.decay_function(distance_matrix) * supply_array * inverse_demands
+        if self.huff_normalization:
+            access_ratio_matrix *= self._calculate_interaction_probabilities(distance_matrix)
+        return np.nansum(access_ratio_matrix, axis=1)
 
     def _calculate_demand_potentials(self, distance_matrix, demand_array):
         """Calculate the demand potential at each input location.
@@ -153,13 +151,30 @@ class GravityModel(object):
         array
             An array of demand at each supply location.
         """
-        demand_by_location = np.zeros(distance_matrix.shape[1])
-        for location_index, _ in enumerate(demand_by_location):
-            matrix = demand_array * self.decay_function(distance_matrix[:, location_index])
-            matrix[matrix == np.inf] = 0.0
-            demand_by_location[location_index] = np.nansum(matrix)
+        demand_matrix = demand_array.reshape(-1, 1) * self.decay_function(distance_matrix)
+        if self.huff_normalization:
+            demand_matrix *= self._calculate_interaction_probabilities(distance_matrix)
+        return np.nansum(demand_matrix, axis=0)
 
-        return demand_by_location
+    def _calculate_interaction_probabilities(self, distance_matrix):
+        """Calculate the demand potential at each input location.
+
+        Parameters
+        ----------
+        distance_matrix : np.ndarray(float)
+            A matrix whose entry in row i, column j is the distance between demand point i
+            and supply point j.
+
+        Returns
+        -------
+        array
+            A 2D-array of the interaction probabilities between each demand point and supply point.
+        """
+        # FIXME: Use alternative decay function to capture the Huff model of spatial interaction.
+        weights = np.power(distance_matrix, -1)
+        # FIXME: Handle the case of 0 distance more intelligently.
+        weights[np.isinf(weights)] = 10**8
+        return weights / np.nansum(weights, axis=1)[:, np.newaxis]
 
 
 class TwoStepFCA(GravityModel):
@@ -176,3 +191,42 @@ class TwoStepFCA(GravityModel):
             Points within this radius contribute the full demand amount (with no decay).
         """
         super(TwoStepFCA, self).__init__(decay_function='uniform', decay_params={'scale': radius})
+
+
+class ThreeStepFCA(GravityModel):
+    """Represents an instance of the Three-Step Floating Catchment Area (3SFCA) model.
+
+    In 3SFCA, the presence of nearby options influences the amount of demand pressure each demand
+    location places on other supply locations. A demand location with many nearby options will not
+    exert the same demand on faraway supply locations as a demand location at the same distance
+    that has no nearby alternatives.
+
+    This model is designed to account for this observation and reduce the demand over-estimation
+    that may take place with ordinary 2SFCA.
+
+    References
+    ----------
+    Wan, Neng & Zou, Bin & Sternberg, Troy. (2012). A 3-step floating catchment area method for
+    analyzing spatial access to health services. International Journal of Geographical Information
+    Science. 26. 1073-1089. 10.1080/13658816.2011.624987.
+    """
+
+    def __init__(self, decay_function, decay_params):
+        """"Initialize a gravitational model of spatial accessibility using Huff-like normalization.
+
+        Parameters
+        ----------
+        decay_function : callable or str
+            If str, the name of a decay function in the ``decay`` module.
+            Some available names are 'uniform', 'raised_cosine', and 'gaussian_decay'.
+
+            If callable, a vectorized numpy function returning demand dropoffs by distance.
+        decay_params :
+            Parameter: value mapping for each argument of the specified decay function.
+            These parameters are bound to the decay function to create a one-argument callable.
+        """
+        super(ThreeStepFCA, self).__init__(
+            decay_function=decay_function,
+            decay_params=decay_params,
+            huff_normalization=True,
+        )
