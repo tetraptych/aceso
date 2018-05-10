@@ -1,8 +1,8 @@
 """
-Methods to calculate gravity-based measures of potential spatial accessibility.
+Classes to calculate gravity-based measures of potential spatial accessibility.
 
 These measures assign accessibility scores to demand locations based on their proximity to supply
-locations. The main method used here is a gravitational model using non-standard decay functions.
+locations. The main model used here is a gravitational model using non-standard decay functions.
 
 References:
     Luo, W. and Qi, Y. (2009) An enhanced two-step floating catchment area (E2SFCA) method for
@@ -237,7 +237,7 @@ class ThreeStepFCA(GravityModel):
     """
 
     def __init__(self, decay_function, decay_params):
-        """"Initialize a gravitational model of spatial accessibility using Huff-like normalization.
+        """Initialize a gravitational model of spatial accessibility using Huff-like normalization.
 
         Parameters
         ----------

@@ -1,15 +1,21 @@
-Aceso API
-=========
+Models of spatial interaction
+=============================
 
-GravityModel
-------------
+.. automodule:: aceso.gravity
+
+Gravity Model
+-------------
 .. autoclass:: aceso.GravityModel
-    :members:
-    :show-inheritance:
+   :members:
 
-
-TwoStepFCA
-----------
+Two-Step Floating Catchment Area (2SFCA)
+----------------------------------------
 .. autoclass:: aceso.TwoStepFCA
-    :members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
+
+Three-Step Floating Catchment Area (3SFCA)
+------------------------------------------
+.. autoclass:: aceso.ThreeStepFCA
+   :members:
+   :show-inheritance:
