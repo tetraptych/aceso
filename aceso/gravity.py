@@ -44,7 +44,7 @@ class GravityModel(object):
     def __init__(
         self, decay_function, decay_params={}, huff_normalization=False, suboptimality_exponent=1.0
     ):
-        """"Initialize a gravitational model of spatial accessibility.
+        """Initialize a gravitational model of spatial accessibility.
 
         Parameters
         ----------
@@ -57,8 +57,7 @@ class GravityModel(object):
             Parameter: value mapping for each argument of the specified decay function.
             These parameters are bound to the decay function to create a one-argument callable.
         huff_normalization: bool
-            Indicates whether to normalize demand through the use of Huff-like interaction
-            probabilities.
+            Flag used to normalize demand through Huff-like interaction probabilities.
 
             Used in 3SFCA to curtail demand over-estimation.
         suboptimality_exponent: float

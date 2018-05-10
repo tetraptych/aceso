@@ -20,3 +20,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from .gravity import GravityModel, TwoStepFCA, ThreeStepFCA  # noqa
+
+__version__ = '0.1.0'

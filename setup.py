@@ -2,6 +2,17 @@
 import setuptools
 
 
+def _get_version():
+    with open('aceso/__init__.py') as f:
+        for line in f:
+            if line.find("__version__") >= 0:
+                version = line.split("=")[1].strip()
+                version = version.strip('"')
+                version = version.strip("'")
+                continue
+    return version
+
+
 def _get_long_description():
     with open('README.md', 'r') as f:
         desc = f.read()
@@ -14,7 +25,7 @@ def _get_install_requires():
 
 setuptools.setup(
     name='aceso',
-    version='0.1.0',
+    version=_get_version(),
     description='''
         Lightweight package to calculate 2SFCA and other measures of spatial accessibility
         '''.strip(),
