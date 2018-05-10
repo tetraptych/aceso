@@ -14,14 +14,14 @@ def _get_install_requires():
 
 setuptools.setup(
     name='aceso',
-    version='0.0.2',
+    version='0.1.0',
     description='''
         Lightweight package to calculate 2SFCA and other measures of spatial accessibility
         '''.strip(),
     long_description=_get_long_description(),
     long_description_content_type='text/markdown',
     url='http://github.com/tetraptych/aceso',
-    keywords=['geospatial', 'geo', 'gis', '2SFCA', 'gravity', 'access'],
+    keywords=['geospatial', 'geo', 'gis', '2SFCA', 'gravity', 'access', 'catchment-area'],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
