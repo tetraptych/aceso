@@ -196,6 +196,7 @@ class GravityModel(object):
             A 2D-array of the interaction probabilities between each demand point and supply point.
         """
         # FIXME: Use alternative decay function to capture the Huff model of spatial interaction.
+        # This particular function isn't well-behaved near 0.
         weights = np.power(distance_matrix, -1)
         # FIXME: Handle the case of 0 distance more intelligently.
         weights[np.isinf(weights)] = 10**8

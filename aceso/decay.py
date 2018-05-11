@@ -3,6 +3,7 @@
 All decay functions operate on one-dimensional numpy arrays.
 """
 # TODO: Add the standard gravity decay function d**(-beta).
+# TODO: Add linear decay (or other polynomial interpolation).
 import math
 
 import numpy as np
@@ -123,7 +124,7 @@ def get_decay_function(name):
             - ``'uniform'``
             - ``'raised_cosine'``
             - ``'gaussian'``
-            - ``'uniform'``
+            - ``'parabolic'``
 
     """
     return NAME_TO_FUNCTION_MAP[name.lower()]

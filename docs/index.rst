@@ -23,7 +23,7 @@ Contents
    contributing
 
 Sample Output
-=============
+-------------
 .. image:: https://farm1.staticflickr.com/902/39848822400_197406d944_b_d.jpg
 
 Indices and tables

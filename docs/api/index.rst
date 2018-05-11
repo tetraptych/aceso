@@ -7,6 +7,7 @@ Gravity Model
 -------------
 .. autoclass:: aceso.GravityModel
    :members:
+   :private-members:
 
 Two-Step Floating Catchment Area (2SFCA)
 ----------------------------------------
