@@ -1,4 +1,4 @@
-## Name
+## Etymon
 
 The top-level README presents this package as having been named after a Greek goddess, but there is an alternative origin story of the name. During the genesis of this package, I took public transit to and from work. One unexceptional stretch of my daily commute passed by this building:
 
